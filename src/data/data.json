@@ -1,0 +1,203 @@
+{
+  "my2024": {
+    "restaurantMetrics": {
+      "topRestaurantsBySpend": [
+        { "name": "Le Bernardin", "totalSpent": { "value": 89500, "currency": "USD" }, "checkIns": 8, "percentage": 12.4 },
+        { "name": "Crown Shy", "totalSpent": { "value": 67200, "currency": "USD" }, "checkIns": 12, "percentage": 9.3 },
+        { "name": "Atomix", "totalSpent": { "value": 52800, "currency": "USD" }, "checkIns": 6, "percentage": 7.3 },
+        { "name": "Via Carota", "totalSpent": { "value": 48900, "currency": "USD" }, "checkIns": 15, "percentage": 6.8 },
+        { "name": "Republique", "totalSpent": { "value": 41200, "currency": "USD" }, "checkIns": 9, "percentage": 5.7 },
+        { "name": "Osteria Francescana", "totalSpent": { "value": 38400, "currency": "USD" }, "checkIns": 4, "percentage": 5.3 },
+        { "name": "Lucali", "totalSpent": { "value": 32100, "currency": "USD" }, "checkIns": 18, "percentage": 4.4 },
+        { "name": "Tartine", "totalSpent": { "value": 28500, "currency": "USD" }, "checkIns": 22, "percentage": 3.9 },
+        { "name": "Quality Meats", "totalSpent": { "value": 24800, "currency": "USD" }, "checkIns": 7, "percentage": 3.4 },
+        { "name": "Guelaguetza", "totalSpent": { "value": 19600, "currency": "USD" }, "checkIns": 11, "percentage": 2.7 }
+      ],
+      "topRestaurantsByCheckIn": [
+        { "name": "Tartine", "checkIns": 22, "percentage": 13.2 },
+        { "name": "Lucali", "checkIns": 18, "percentage": 10.8 },
+        { "name": "Via Carota", "checkIns": 15, "percentage": 9.0 },
+        { "name": "Crown Shy", "checkIns": 12, "percentage": 7.2 },
+        { "name": "Guelaguetza", "checkIns": 11, "percentage": 6.6 },
+        { "name": "Republique", "checkIns": 9, "percentage": 5.4 },
+        { "name": "Le Bernardin", "checkIns": 8, "percentage": 4.8 },
+        { "name": "Quality Meats", "checkIns": 7, "percentage": 4.2 },
+        { "name": "Atomix", "checkIns": 6, "percentage": 3.6 },
+        { "name": "Joe's Pizza", "checkIns": 6, "percentage": 3.6 }
+      ],
+      "topRestaurantsByFlyEarned": [
+        { "name": "Le Bernardin", "flyEarned": 2845, "checkIns": 8 },
+        { "name": "Crown Shy", "flyEarned": 2016, "checkIns": 12 },
+        { "name": "Atomix", "flyEarned": 1584, "checkIns": 6 },
+        { "name": "Via Carota", "flyEarned": 1467, "checkIns": 15 },
+        { "name": "Republique", "flyEarned": 1236, "checkIns": 9 }
+      ],
+      "longestStreakAtSameRestaurant": {
+        "restaurant": "Tartine",
+        "streak": 5,
+        "period": "January 2024"
+      },
+      "mostExpensiveMeal": {
+        "restaurant": "Le Bernardin",
+        "amount": { "value": 45600, "currency": "USD" },
+        "date": "2024-12-31"
+      },
+      "cheapestMeal": {
+        "restaurant": "Joe's Pizza",
+        "amount": { "value": 850, "currency": "USD" },
+        "date": "2024-07-15"
+      }
+    },
+    "spendingPatterns": {
+      "avgSpendPerCheckIn": { "value": 4325, "currency": "USD" },
+      "totalSpent": { "value": 720400, "currency": "USD" },
+      "totalSavedFromRewards": { "value": 18500, "currency": "USD" },
+      "spendingByDayOfWeek": {
+        "Friday": { "value": 156800, "currency": "USD" },
+        "Saturday": { "value": 142300, "currency": "USD" },
+        "Sunday": { "value": 98600, "currency": "USD" },
+        "Wednesday": { "value": 87200, "currency": "USD" },
+        "Thursday": { "value": 76900, "currency": "USD" },
+        "Tuesday": { "value": 89300, "currency": "USD" },
+        "Monday": { "value": 69300, "currency": "USD" }
+      },
+      "spendingByMonth": {
+        "December": { "value": 89400, "currency": "USD" },
+        "October": { "value": 76200, "currency": "USD" },
+        "September": { "value": 71800, "currency": "USD" },
+        "August": { "value": 68900, "currency": "USD" },
+        "November": { "value": 65300, "currency": "USD" },
+        "July": { "value": 62100, "currency": "USD" },
+        "June": { "value": 58400, "currency": "USD" },
+        "May": { "value": 54800, "currency": "USD" },
+        "March": { "value": 48200, "currency": "USD" },
+        "April": { "value": 45900, "currency": "USD" },
+        "February": { "value": 39800, "currency": "USD" },
+        "January": { "value": 39600, "currency": "USD" }
+      },
+      "avgSpendByPriceCategory": {
+        "$$$$": { "value": 18750, "currency": "USD" },
+        "$$$": { "value": 8420, "currency": "USD" },
+        "$$": { "value": 3890, "currency": "USD" },
+        "$": { "value": 1250, "currency": "USD" }
+      }
+    },
+    "flyMetrics": {
+      "avgFlyEarnedPerCheckIn": 216,
+      "totalFlyEarned": 36048,
+      "totalFlySpent": 12400,
+      "bestFlyEarningDay": {
+        "date": "2024-12-31",
+        "amount": 1824,
+        "restaurant": "Le Bernardin"
+      },
+      "flyEarningRate": 5.0,
+      "rewardsRedeemed": 28,
+      "rewardsExpired": 3,
+      "rewardsActive": 15,
+      "flyBalance": 23648
+    },
+    "timeAndFrequency": {
+      "totalCheckIns": 167,
+      "avgCheckInsPerDay": 0.46,
+      "avgCheckInsPerWeek": 3.2,
+      "avgCheckInsPerMonth": 13.9,
+      "busiestDiningMonth": "December 2024",
+      "longestGapBetweenVisits": {
+        "days": 12,
+        "between": ["Business Trip", "Return to NYC"]
+      },
+      "favoriteTimeOfDay": "Evening (7-9pm)",
+      "weekdayVsWeekendRatio": "45% weekdays, 55% weekends",
+      "averageVisitsPerRestaurant": 4.2
+    },
+    "geographic": {
+      "totalCitiesVisited": 2,
+      "totalStatesVisited": 2,
+      "topNeighborhoods": [
+        { "name": "West Village", "checkIns": 28 },
+        { "name": "SoHo", "checkIns": 22 },
+        { "name": "Financial District", "checkIns": 18 },
+        { "name": "Williamsburg", "checkIns": 16 },
+        { "name": "Mission", "checkIns": 14 },
+        { "name": "Castro", "checkIns": 12 },
+        { "name": "Carroll Gardens", "checkIns": 11 },
+        { "name": "Hayes Valley", "checkIns": 9 }
+      ],
+      "topCities": [
+        { "name": "New York", "checkIns": 112, "spent": { "value": 456800, "currency": "USD" } },
+        { "name": "San Francisco", "checkIns": 55, "spent": { "value": 263600, "currency": "USD" } }
+      ],
+      "milesWalkedToDine": 187.3,
+      "farthestRestaurant": {
+        "name": "Tartine",
+        "city": "San Francisco",
+        "distance": 2572.8
+      },
+      "homeBaseRadius": "67% NYC, 33% SF"
+    },
+    "cuisineAndPreferences": {
+      "totalCuisineTypes": 24,
+      "topCuisinesByCount": [
+        { "cuisine": "Italian", "count": 38 },
+        { "cuisine": "American", "count": 29 },
+        { "cuisine": "French", "count": 22 },
+        { "cuisine": "Japanese", "count": 18 },
+        { "cuisine": "Mexican", "count": 15 },
+        { "cuisine": "Mediterranean", "count": 12 },
+        { "cuisine": "Chinese", "count": 10 },
+        { "cuisine": "Thai", "count": 8 }
+      ],
+      "topCuisinesBySpend": [
+        { "cuisine": "French", "spent": { "value": 178900, "currency": "USD" } },
+        { "cuisine": "American", "spent": { "value": 156200, "currency": "USD" } },
+        { "cuisine": "Japanese", "spent": { "value": 142800, "currency": "USD" } },
+        { "cuisine": "Italian", "spent": { "value": 128400, "currency": "USD" } },
+        { "cuisine": "Mediterranean", "spent": { "value": 67800, "currency": "USD" } }
+      ],
+      "cuisineDiversity": 24,
+      "mostAdventurousMonth": "September 2024",
+      "comfortFoodRatio": "35% familiar, 65% adventurous",
+      "newCuisinesTried": ["Ethiopian", "Georgian", "Peruvian", "Korean BBQ"]
+    },
+    "socialAndStatus": {
+      "statusLevelProgression": ["1x", "2x", "3x", "5x"],
+      "currentStatus": "5x",
+      "rewardsUnlocked": 43,
+      "avgPartySize": 2.8,
+      "bbPayUsage": "92% of visits",
+      "referralsMade": 12,
+      "friendsIntroducedToBlackbird": 8
+    },
+    "uniqueInsights": {
+      "diningPersonality": "The Culinary Connoisseur",
+      "personalityTraits": [
+        "Fine dining enthusiast",
+        "Cross-country foodie",
+        "Loyalty program optimizer",
+        "Quality-focused spender",
+        "Weekend warrior diner"
+      ],
+      "yearOverYearGrowth": {
+        "checkInsIncrease": "234%",
+        "spendingIncrease": "189%",
+        "flyEarningIncrease": "267%",
+        "newRestaurantsDiscovered": "340%"
+      }
+    },
+    "monthlyBreakdown": {
+      "January": { "checkIns": 8, "newRestaurants": 3, "topSpend": "Tartine streak" },
+      "February": { "checkIns": 10, "newRestaurants": 4, "topSpend": "Valentine's at Crown Shy" },
+      "March": { "checkIns": 12, "newRestaurants": 5, "topSpend": "Spring dining tour" },
+      "April": { "checkIns": 11, "newRestaurants": 3, "topSpend": "LA food trip" },
+      "May": { "checkIns": 13, "newRestaurants": 6, "topSpend": "Birthday celebrations" },
+      "June": { "checkIns": 14, "newRestaurants": 4, "topSpend": "Summer patio season" },
+      "July": { "checkIns": 15, "newRestaurants": 7, "topSpend": "Vacation dining" },
+      "August": { "checkIns": 16, "newRestaurants": 5, "topSpend": "End of summer splurge" },
+      "September": { "checkIns": 18, "newRestaurants": 8, "topSpend": "Fall tasting menus" },
+      "October": { "checkIns": 17, "newRestaurants": 6, "topSpend": "Restaurant week" },
+      "November": { "checkIns": 16, "newRestaurants": 4, "topSpend": "Pre-holiday dining" },
+      "December": { "checkIns": 17, "newRestaurants": 5, "topSpend": "Holiday celebrations" }
+    }
+  }
+} 
