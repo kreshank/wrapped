@@ -66,6 +66,7 @@ To learn more about the technologies used in this project:
 
 - Map is resource intensive
 - Scaling with zoom levels are strange
+- If zoomed too far out, it looks bad
 
 ## License
 

@@ -170,20 +170,14 @@ export const DataVisualizationLayer = ({ data, options = {} }: DataVisualization
 
       // Get current zoom level
       const zoom = map.getZoom();
-      // Only scale the width based on zoom, not the height
-      const zoomScale = Math.pow(2.5, Math.max(0, zoom - 4)) * Math.pow(0.3, Math.max(0, zoom - 8));
 
       // Aggregate points based on current zoom level
       const aggregatedData = aggregatePoints(transformedData, map, mergedOptions.aggregationThreshold);
 
       aggregatedData.forEach(point => {
         const mapPoint = map.latLngToContainerPoint(L.latLng(point.coordinates));
-        // Increase base pillar width for aggregated points and at lower zoom levels, decrease at higher zoom levels
-        const basePillarWidth = mergedOptions.barWidth * 
-          (point.count > 1 ? 0.8 : 0.6) * 
-          (zoom < 2 ? 0.26 : 1) * 
-          (zoom > 8 ? 0.26 : 1);
-        const pillarWidth = basePillarWidth * zoomScale;
+        // Use constant width for all pillars
+        const pillarWidth = MAX_WIDTH;
         const centralOffset = pillarWidth * 0.8;
         const outerOffset = pillarWidth * 1.4;
 
@@ -242,35 +236,36 @@ export const DataVisualizationLayer = ({ data, options = {} }: DataVisualization
             false // No bottom for outer ring
           );
         }
-      });
 
-      // Draw tooltip if visible
-      if (tooltip.visible) {
-        const lines = tooltip.text.split('\n');
-        const lineHeight = 20;
-        const padding = 10;
-        const maxWidth = Math.max(...lines.map(line => ctx.measureText(line).width));
-        
-        // Draw tooltip background
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-        ctx.fillRect(
-          tooltip.x + 10,
-          tooltip.y + 10,
-          maxWidth + padding * 2,
-          lines.length * lineHeight + padding * 2
-        );
-
-        // Draw tooltip text
-        ctx.fillStyle = 'white';
-        ctx.font = '14px Arial';
-        lines.forEach((line, i) => {
-          ctx.fillText(
-            line,
-            tooltip.x + 10 + padding,
-            tooltip.y + 10 + padding + (i + 1) * lineHeight
+        // Draw tooltip if this is the hovered point
+        if (hoveredPoint?.id === point.id) {
+          const tooltipText = generateTooltipText(point);
+          const lines = tooltipText.split('\n');
+          const lineHeight = 20;
+          const padding = 10;
+          const maxWidth = Math.max(...lines.map(line => ctx.measureText(line).width));
+          
+          // Draw tooltip background
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+          ctx.fillRect(
+            mapPoint.x + 20,
+            mapPoint.y - (lines.length * lineHeight + padding * 2),
+            maxWidth + padding * 2,
+            lines.length * lineHeight + padding * 2
           );
-        });
-      }
+
+          // Draw tooltip text
+          ctx.fillStyle = 'white';
+          ctx.font = '14px Arial';
+          lines.forEach((line, i) => {
+            ctx.fillText(
+              line,
+              mapPoint.x + 20 + padding,
+              mapPoint.y - (lines.length * lineHeight + padding * 2) + padding + (i + 1) * lineHeight
+            );
+          });
+        }
+      });
     };
 
     const animate = (timestamp: number) => {
