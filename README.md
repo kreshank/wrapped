@@ -72,11 +72,9 @@ To learn more about the technologies used in this project:
 
 ## Possible improvements
 
+- Test the data generation
+- Optimize
 - Polish the visuals and theme
-- **REORGANIZE AND REFACTOR** the directory
-- Test the data generation (beyond the "eye test")
-- Optimize the map
-- More info and pages would be nice... like the titles in `data.json`
 
 ## License
 
