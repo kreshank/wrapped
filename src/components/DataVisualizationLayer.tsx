@@ -243,27 +243,37 @@ export const DataVisualizationLayer = ({ data, options = {} }: DataVisualization
           const lines = tooltipText.split('\n');
           const lineHeight = 20;
           const padding = 10;
-          const maxWidth = Math.max(...lines.map(line => ctx.measureText(line).width));
           
-          // Draw tooltip background
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+          // Calculate text width for each line
+          ctx.font = '14px Arial';
+          const lineWidths = lines.map(line => ctx.measureText(line).width);
+          const maxWidth = Math.max(...lineWidths);
+          
+          // Calculate tooltip position (right side of the pillar)
+          const tooltipX = mapPoint.x + 70; // 70px to the right of the pillar
+          const tooltipY = mapPoint.y - (lines.length * lineHeight / 2); // Center vertically with the pillar
+          
+          // Draw tooltip background with higher z-index
+          ctx.save();
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
           ctx.fillRect(
-            mapPoint.x + 20,
-            mapPoint.y - (lines.length * lineHeight + padding * 2),
+            tooltipX,
+            tooltipY - (lines.length * lineHeight + padding * 2) / 2,
             maxWidth + padding * 2,
             lines.length * lineHeight + padding * 2
           );
 
           // Draw tooltip text
           ctx.fillStyle = 'white';
-          ctx.font = '14px Arial';
           lines.forEach((line, i) => {
             ctx.fillText(
               line,
-              mapPoint.x + 20 + padding,
-              mapPoint.y - (lines.length * lineHeight + padding * 2) + padding + (i + 1) * lineHeight
+              tooltipX + padding,
+              tooltipY - (lines.length * lineHeight + padding * 2) / 2 + padding + (i + 1) * lineHeight
             );
           });
+          ctx.restore();
         }
       });
     };
@@ -320,6 +330,20 @@ export const DataVisualizationLayer = ({ data, options = {} }: DataVisualization
       initializedRef.current = false;
     };
   }, [map, transformedData, mergedOptions, tooltip]);
+
+  const generateTooltipText = (point: AggregatedPoint): string => {
+    const totalValue = point.points.reduce((sum, p) => sum + p.value, 0) / 100; // Convert cents to dollars
+    const avgValue = totalValue / point.points.length;
+    const maxValue = Math.max(...point.points.map(p => p.value)) / 100; // Convert cents to dollars
+    const minValue = Math.min(...point.points.map(p => p.value)) / 100; // Convert cents to dollars
+
+    return `${point.name}\n` +
+           `Total Visits: ${point.count}\n` +
+           `Total Spent: $${totalValue.toFixed(2)}\n` +
+           `Average: $${avgValue.toFixed(2)}\n` +
+           `Max: $${maxValue.toFixed(2)}\n` +
+           `Min: $${minValue.toFixed(2)}`;
+  };
 
   return null;
 }; 
