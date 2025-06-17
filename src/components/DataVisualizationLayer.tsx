@@ -4,7 +4,7 @@ import { useMap } from 'react-leaflet';
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { AggregatedPoint, DataPoint, RestaurantData, TooltipState, PointHeights, PillarHeights } from '../types/visualization';
-import { defaultOptions } from '../constants/visualizationOptions';
+import { defaultOptions, MAX_HEIGHT, MAX_WIDTH } from '../constants/visualizationOptions';
 import { aggregatePoints, isPointUnderMouse, generateTooltipText, drawCylinder } from '../utils/visualizationUtils';
 import { getRestaurantCoordinates } from '../data/restaurantCoordinates';
 
@@ -45,24 +45,24 @@ export const DataVisualizationLayer = ({ data, options = {} }: DataVisualization
 
   // Function to initialize heights for a point
   const initializeHeights = (point: AggregatedPoint, totalHeight: number): PillarHeights => {
-    // Use logarithmic scale for more reasonable height distribution
-    const logValue = Math.log(point.value + 1);
-    const scaledHeight = logValue * mergedOptions.heightScale * 2000;
+    // Calculate the height ratio based on the point's value relative to the maximum value
+    // For aggregated points, we need to consider the total value of all points
+    const maxValue = Math.max(...transformedData.map(p => p.value));
+    const heightRatio = Math.min(1, point.value / maxValue); // Cap at 1 to respect MAX_HEIGHT
     
-    // Calculate heights based on the 40-30-20-10 distribution
-    const centralHeight = scaledHeight * 0.4; // 40% of total height
-    const innerStacks = Math.min(4, Math.max(4, Math.floor(point.value / 2000)));
-    const outerStacks = point.count > 1 ? 4 : 0;
+    // Calculate the base height using the MAX_HEIGHT constant
+    const baseHeight = MAX_HEIGHT * heightRatio;
+    
+    // Calculate heights based on the 60-20-20-15 distribution
+    const centralHeight = baseHeight * 0.6; // 60% of total height
+    const innerStacks = 2; // Always 2 inner pillars
+    const outerStacks = 1; // Always 1 outer pillar
 
-    // Create inner heights with 30% and 20% distribution
-    const innerHeights = Array(innerStacks).fill(0).map((_, index) => {
-      if (index === 0) return scaledHeight * 0.3; // First inner pillar gets 30%
-      if (index === 1) return scaledHeight * 0.2; // Second inner pillar gets 20%
-      return scaledHeight * 0.1; // Remaining inner pillars get 10%
-    });
+    // Create inner heights with 20% distribution each
+    const innerHeights = Array(innerStacks).fill(0).map(() => baseHeight * 0.2);
 
-    // Create outer heights with 10% distribution
-    const outerHeights = Array(outerStacks).fill(0).map(() => scaledHeight * 0.1);
+    // Create outer height with 15% distribution
+    const outerHeights = Array(outerStacks).fill(0).map(() => baseHeight * 0.15);
 
     return {
       central: centralHeight,
@@ -71,14 +71,29 @@ export const DataVisualizationLayer = ({ data, options = {} }: DataVisualization
     };
   };
 
+  // Function to calculate width based on zoom level
+  const calculateWidth = (zoom: number): number => {
+    // Return constant width regardless of zoom
+    return MAX_WIDTH;
+  };
+
   // Initialize heights for all points
   const initializeAllHeights = () => {
     if (initializedRef.current) return;
     
+    // First, find the maximum value across all individual points
+    const maxIndividualValue = Math.max(...transformedData.map(p => p.value));
+    
+    // Then, find the maximum value across all possible aggregations
     const aggregatedData = aggregatePoints(transformedData, map, mergedOptions.aggregationThreshold);
+    const maxAggregatedValue = Math.max(...aggregatedData.map(p => p.value));
+    
+    // Use the larger of the two as our reference maximum
+    const maxValue = Math.max(maxIndividualValue, maxAggregatedValue);
+    
+    // Initialize heights for all points
     aggregatedData.forEach(point => {
-      const totalHeight = point.value * mergedOptions.heightScale;
-      heightsRef.current[point.id] = initializeHeights(point, totalHeight);
+      heightsRef.current[point.id] = initializeHeights(point, maxValue);
     });
     
     initializedRef.current = true;
@@ -155,15 +170,19 @@ export const DataVisualizationLayer = ({ data, options = {} }: DataVisualization
 
       // Get current zoom level
       const zoom = map.getZoom();
-      const zoomScale = Math.pow(1.5, zoom - 11);
-      const heightScale = Math.pow(1.4, zoom - 11);
+      // Only scale the width based on zoom, not the height
+      const zoomScale = Math.pow(2.5, Math.max(0, zoom - 4)) * Math.pow(0.3, Math.max(0, zoom - 8));
 
       // Aggregate points based on current zoom level
       const aggregatedData = aggregatePoints(transformedData, map, mergedOptions.aggregationThreshold);
 
       aggregatedData.forEach(point => {
         const mapPoint = map.latLngToContainerPoint(L.latLng(point.coordinates));
-        const basePillarWidth = mergedOptions.barWidth * 0.4;
+        // Increase base pillar width for aggregated points and at lower zoom levels, decrease at higher zoom levels
+        const basePillarWidth = mergedOptions.barWidth * 
+          (point.count > 1 ? 0.8 : 0.6) * 
+          (zoom < 2 ? 0.26 : 1) * 
+          (zoom > 8 ? 0.26 : 1);
         const pillarWidth = basePillarWidth * zoomScale;
         const centralOffset = pillarWidth * 0.8;
         const outerOffset = pillarWidth * 1.4;
@@ -171,13 +190,18 @@ export const DataVisualizationLayer = ({ data, options = {} }: DataVisualization
         const heights = heightsRef.current[point.id];
         if (!heights) return;
 
+        // Remove zoom-based height scaling
+        const scaledCentralHeight = heights.central * progress;
+        const scaledInnerHeights = heights.inner.map(h => h * progress);
+        const scaledOuterHeights = heights.outer.map(h => h * progress);
+
         // Draw central stack (tallest, always bottom-most)
         drawCylinder(
           ctx,
           mapPoint.x,
           mapPoint.y,
           pillarWidth,
-          heights.central * progress * heightScale,
+          scaledCentralHeight,
           mergedOptions.colors.front,
           mergedOptions.colors.border,
           true // Draw bottom for the central pillar
@@ -194,7 +218,7 @@ export const DataVisualizationLayer = ({ data, options = {} }: DataVisualization
             x,
             y,
             pillarWidth,
-            heights.inner[i] * progress * heightScale,
+            scaledInnerHeights[i],
             mergedOptions.colors.front,
             mergedOptions.colors.border,
             false // No bottom for inner ring
@@ -212,7 +236,7 @@ export const DataVisualizationLayer = ({ data, options = {} }: DataVisualization
             x,
             y,
             pillarWidth,
-            heights.outer[i] * progress * heightScale,
+            scaledOuterHeights[i],
             mergedOptions.colors.front,
             mergedOptions.colors.border,
             false // No bottom for outer ring
