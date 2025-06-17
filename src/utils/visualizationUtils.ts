@@ -1,53 +1,61 @@
 import L from 'leaflet';
 import { AggregatedPoint, DataPoint, Colors } from '../types/visualization';
+import { RestaurantData } from '../types/visualization';
+import { getRestaurantCoordinates } from '../data/restaurantCoordinates';
 
-export const aggregatePoints = (
-  points: DataPoint[],
-  map: L.Map,
-  threshold: number
-): AggregatedPoint[] => {
+export const aggregatePoints = (points: DataPoint[], map: L.Map, threshold: number): AggregatedPoint[] => {
   const zoom = map.getZoom();
 
   // If zoomed in enough, don't aggregate
   if (zoom >= 15) {
-    return points.map(point => ({ ...point, count: 1, points: [point] }));
+    return points.map(point => ({
+      id: point.id,
+      name: point.name,
+      value: point.value,
+      x: map.latLngToContainerPoint(L.latLng(point.coordinates)).x,
+      y: map.latLngToContainerPoint(L.latLng(point.coordinates)).y,
+      points: [point],
+      count: 1,
+      coordinates: point.coordinates,
+      checkIns: point.checkIns,
+      flyEarned: point.flyEarned
+    }));
   }
 
-  const aggregated: AggregatedPoint[] = [];
-  const processed = new Set<string>();
+  const aggregated: { [key: string]: AggregatedPoint } = {};
 
   points.forEach(point => {
-    if (processed.has(point.id)) return;
+    const mapPoint = map.latLngToContainerPoint(L.latLng(point.coordinates));
+    const key = `${Math.round(mapPoint.x / threshold)},${Math.round(mapPoint.y / threshold)}`;
 
-    const pointPixel = map.latLngToContainerPoint(L.latLng(point.coordinates));
-    const nearbyPoints = points.filter(otherPoint => {
-      if (processed.has(otherPoint.id)) return false;
-      const otherPixel = map.latLngToContainerPoint(L.latLng(otherPoint.coordinates));
-      const distance = Math.sqrt(
-        Math.pow(pointPixel.x - otherPixel.x, 2) + 
-        Math.pow(pointPixel.y - otherPixel.y, 2)
-      );
-      return distance <= threshold;
-    });
-
-    // Calculate average position and total value
-    const totalValue = nearbyPoints.reduce((sum, p) => sum + p.value, 0);
-    const avgLat = nearbyPoints.reduce((sum, p) => sum + p.coordinates[0], 0) / nearbyPoints.length;
-    const avgLng = nearbyPoints.reduce((sum, p) => sum + p.coordinates[1], 0) / nearbyPoints.length;
-
-    aggregated.push({
-      id: `agg-${point.id}`,
-      name: nearbyPoints.length > 1 ? `${nearbyPoints.length} locations` : point.name,
-      value: totalValue,
-      coordinates: [avgLat, avgLng],
-      count: nearbyPoints.length,
-      points: nearbyPoints
-    });
-
-    nearbyPoints.forEach(p => processed.add(p.id));
+    if (!aggregated[key]) {
+      aggregated[key] = {
+        id: key,
+        name: point.name,
+        value: point.value,
+        x: mapPoint.x,
+        y: mapPoint.y,
+        points: [point],
+        count: 1,
+        coordinates: point.coordinates,
+        checkIns: point.checkIns,
+        flyEarned: point.flyEarned
+      };
+    } else {
+      aggregated[key].value += point.value;
+      aggregated[key].points.push(point);
+      aggregated[key].count++;
+      aggregated[key].checkIns += point.checkIns;
+      aggregated[key].flyEarned += point.flyEarned;
+      
+      // Update name if multiple points
+      if (aggregated[key].count > 1) {
+        aggregated[key].name = `${aggregated[key].count} locations`;
+      }
+    }
   });
 
-  return aggregated;
+  return Object.values(aggregated);
 };
 
 export const isPointUnderMouse = (
@@ -58,39 +66,11 @@ export const isPointUnderMouse = (
   barWidth: number
 ): boolean => {
   const mapPoint = map.latLngToContainerPoint(L.latLng(point.coordinates));
-  const pillarWidth = barWidth * 0.4;
-  const centralOffset = pillarWidth * 0.6;
-  const outerOffset = pillarWidth * 1.2;
-
-  // Check central point
-  if (Math.abs(mapPoint.x - mouseX) < pillarWidth && 
-      Math.abs(mapPoint.y - mouseY) < pillarWidth) {
-    return true;
-  }
-
-  // Check inner ring
-  const innerStacks = Math.min(4, Math.max(4, Math.floor(point.value / 2)));
-  for (let i = 0; i < innerStacks; i++) {
-    const angle = (i * 360 / innerStacks) * (Math.PI / 180);
-    const x = mapPoint.x + Math.cos(angle) * centralOffset;
-    const y = mapPoint.y + Math.sin(angle) * centralOffset;
-    if (Math.abs(x - mouseX) < pillarWidth && Math.abs(y - mouseY) < pillarWidth) {
-      return true;
-    }
-  }
-
-  // Check outer ring
-  const outerStacks = point.count > 1 ? 4 : 0;
-  for (let i = 0; i < outerStacks; i++) {
-    const angle = (i * 360 / outerStacks) * (Math.PI / 180);
-    const x = mapPoint.x + Math.cos(angle) * outerOffset;
-    const y = mapPoint.y + Math.sin(angle) * outerOffset;
-    if (Math.abs(x - mouseX) < pillarWidth && Math.abs(y - mouseY) < pillarWidth) {
-      return true;
-    }
-  }
-
-  return false;
+  const selectionRadius = barWidth * 2; // Double the selection radius
+  
+  const dx = mouseX - mapPoint.x;
+  const dy = mouseY - mapPoint.y;
+  return Math.sqrt(dx * dx + dy * dy) <= selectionRadius;
 };
 
 export const generateTooltipText = (point: AggregatedPoint): string => {
@@ -167,4 +147,15 @@ export const drawCylinder = (
   ctx.beginPath();
   ctx.ellipse(x + width/2, y - height, width/2, width/6, 0, 0, Math.PI * 2);
   ctx.stroke();
+};
+
+export const transformData = (data: RestaurantData[]): DataPoint[] => {
+  return data.map((restaurant, index) => ({
+    id: `restaurant-${index}`,
+    name: restaurant.name,
+    value: restaurant.totalSpent.value,
+    coordinates: getRestaurantCoordinates(restaurant.name),
+    checkIns: restaurant.checkIns,
+    flyEarned: restaurant.flyEarned || 0
+  }));
 }; 

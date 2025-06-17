@@ -1,7 +1,8 @@
 import { Colors, VisualizationOptions } from '../types/visualization';
 
-export const MAX_HEIGHT = 250; // Maximum height in pixels
-export const MAX_WIDTH = 20; // Maximum width in pixels
+export const MAX_HEIGHT = 250;
+export const MAX_WIDTH = 20;
+export const AGGREGATION_THRESHOLD = 100; // Higher value = more aggressive aggregation
 
 export const defaultOptions: Required<VisualizationOptions> & { colors: Colors } = {
   barWidth: 10,
@@ -17,5 +18,5 @@ export const defaultOptions: Required<VisualizationOptions> & { colors: Colors }
   labelOffset: 15,
   animationDuration: 500,
   animationDelay: 100,
-  aggregationThreshold: 30
+  aggregationThreshold: AGGREGATION_THRESHOLD
 }; 

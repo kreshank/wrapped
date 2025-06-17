@@ -28,7 +28,9 @@ export const DataVisualizationLayer = ({ data, options = {} }: DataVisualization
     id: `restaurant-${index}`,
     name: restaurant.name,
     value: restaurant.totalSpent.value,
-    coordinates: getRestaurantCoordinates(restaurant.name)
+    coordinates: getRestaurantCoordinates(restaurant.name),
+    checkIns: restaurant.checkIns,
+    flyEarned: restaurant.flyEarned || 0
   }));
 
   const mergedOptions = {
@@ -45,13 +47,14 @@ export const DataVisualizationLayer = ({ data, options = {} }: DataVisualization
 
   // Function to initialize heights for a point
   const initializeHeights = (point: AggregatedPoint, totalHeight: number): PillarHeights => {
-    // Calculate the height ratio based on the point's value relative to the maximum value
-    // For aggregated points, we need to consider the total value of all points
+    // First, find the maximum value across all points
     const maxValue = Math.max(...transformedData.map(p => p.value));
-    const heightRatio = Math.min(1, point.value / maxValue); // Cap at 1 to respect MAX_HEIGHT
     
-    // Calculate the base height using the MAX_HEIGHT constant
-    const baseHeight = MAX_HEIGHT * heightRatio;
+    // If this is the maximum value point, use MAX_HEIGHT
+    // Otherwise, calculate proportion relative to max value
+    const baseHeight = point.value === maxValue 
+      ? MAX_HEIGHT 
+      : (point.value / maxValue) * MAX_HEIGHT;
     
     // Calculate heights based on the 60-20-20-15 distribution
     const centralHeight = baseHeight * 0.6; // 60% of total height
@@ -174,6 +177,7 @@ export const DataVisualizationLayer = ({ data, options = {} }: DataVisualization
       // Aggregate points based on current zoom level
       const aggregatedData = aggregatePoints(transformedData, map, mergedOptions.aggregationThreshold);
 
+      // First, draw all pillars
       aggregatedData.forEach(point => {
         const mapPoint = map.latLngToContainerPoint(L.latLng(point.coordinates));
         // Use constant width for all pillars
@@ -236,9 +240,12 @@ export const DataVisualizationLayer = ({ data, options = {} }: DataVisualization
             false // No bottom for outer ring
           );
         }
+      });
 
-        // Draw tooltip if this is the hovered point
+      // Then, draw all tooltips on top
+      aggregatedData.forEach(point => {
         if (hoveredPoint?.id === point.id) {
+          const mapPoint = map.latLngToContainerPoint(L.latLng(point.coordinates));
           const tooltipText = generateTooltipText(point);
           const lines = tooltipText.split('\n');
           const lineHeight = 20;
@@ -332,17 +339,14 @@ export const DataVisualizationLayer = ({ data, options = {} }: DataVisualization
   }, [map, transformedData, mergedOptions, tooltip]);
 
   const generateTooltipText = (point: AggregatedPoint): string => {
-    const totalValue = point.points.reduce((sum, p) => sum + p.value, 0) / 100; // Convert cents to dollars
-    const avgValue = totalValue / point.points.length;
-    const maxValue = Math.max(...point.points.map(p => p.value)) / 100; // Convert cents to dollars
-    const minValue = Math.min(...point.points.map(p => p.value)) / 100; // Convert cents to dollars
+    const totalValue = point.value / 100; // Convert cents to dollars
+    const totalCheckIns = point.checkIns;
+    const totalFlyEarned = point.flyEarned;
 
     return `${point.name}\n` +
-           `Total Visits: ${point.count}\n` +
+           `Check-ins: ${totalCheckIns}\n` +
            `Total Spent: $${totalValue.toFixed(2)}\n` +
-           `Average: $${avgValue.toFixed(2)}\n` +
-           `Max: $${maxValue.toFixed(2)}\n` +
-           `Min: $${minValue.toFixed(2)}`;
+           `Fly Earned: ${totalFlyEarned}`;
   };
 
   return null;

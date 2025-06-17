@@ -3,18 +3,28 @@ export interface DataPoint {
   name: string;
   value: number;
   coordinates: [number, number];
+  checkIns: number;
+  flyEarned: number;
 }
 
 export interface RestaurantData {
   name: string;
   totalSpent: { value: number; currency: string };
   checkIns: number;
-  percentage: number;
+  flyEarned?: number;
 }
 
-export interface AggregatedPoint extends DataPoint {
-  count: number;
+export interface AggregatedPoint {
+  id: string;
+  name: string;
+  value: number;
+  x: number;
+  y: number;
   points: DataPoint[];
+  count: number;
+  coordinates: [number, number];
+  checkIns: number;
+  flyEarned: number;
 }
 
 export interface Colors {
