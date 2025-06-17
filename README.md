@@ -70,6 +70,12 @@ To learn more about the technologies used in this project:
 - Scaling with zoom levels are strange
 - If zoomed too far out, it looks bad
 
+## Possible improvements
+
+- Test the data generation
+- Optimize
+- Polish the visuals and theme
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
