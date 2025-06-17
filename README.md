@@ -2,6 +2,8 @@
 
 A Next.js application that visualizes restaurant spending data on an interactive map using 3D bar charts.
 
+![image](imgs/preview.png)
+
 ## Technologies Used
 
 - [Next.js](https://nextjs.org) - React framework for production
